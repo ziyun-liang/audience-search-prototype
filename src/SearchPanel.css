@@ -1,0 +1,824 @@
+.search-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100vh;
+  background: white;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  
+  /* Clean border without glow effects */
+  border-left: 1px solid #e9ecef;
+}
+
+/* Removed shimmer and glow animations for cleaner look */
+
+.search-panel-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 2rem 1rem 2rem;
+  overflow: hidden;
+}
+
+.search-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  position: relative;
+}
+
+.search-header h2 {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000000;
+  margin: 0;
+}
+
+.close-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #000000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: #666666;
+}
+
+.search-input-container {
+  margin-bottom: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+
+
+.search-input-wrapper {
+  position: relative;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.search-input-wrapper:focus-within {
+  border: 1px solid #000000;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 1.15rem;
+  color: #000000;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  min-height: 48px;
+  max-height: 130px;
+  padding: 1.1rem 4rem 0.9rem 3rem;
+  border: none;
+  background: transparent;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #212529;
+  resize: none;
+  outline: none;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+}
+
+/* Auto-hiding light scrollbar styling */
+.search-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-input::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-input::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.search-input-wrapper:hover .search-input::-webkit-scrollbar-track,
+.search-input::-webkit-scrollbar-track:hover {
+  background: #f8f9fa;
+}
+
+.search-input-wrapper:hover .search-input::-webkit-scrollbar-thumb,
+.search-input::-webkit-scrollbar-thumb:hover {
+  background: #e9ecef;
+}
+
+.search-input::-webkit-scrollbar-thumb:active {
+  background: #d1d5db;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+
+
+.search-button {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.search-button:hover {
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+
+.search-button:active {
+  transform: translateY(0);
+}
+
+
+.search-results {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Completely hidden scrollbar for search results - only shows during interaction */
+.search-results {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.search-results::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Show light grey scrollbar only when actively scrolling */
+.search-results:hover {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #e9ecef #f8f9fa; /* thumb track for Firefox */
+}
+
+.search-results:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results:hover::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+.search-results:hover::-webkit-scrollbar-thumb {
+  background: #e9ecef;
+  border-radius: 3px;
+}
+
+.search-results:hover::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+.loading-section {
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
+/* NEW SPARKLE LOADING ANIMATION */
+.sparkle-loader {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader-card {
+  width: fit-content;
+  padding: 24px;
+  height: 72px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid #E5E9ED;
+  box-shadow: 0px 8px 8px -4px rgba(16, 24, 40, 0.03), 0px 20px 24px -4px rgba(16, 24, 40, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+.loader-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.sparkle-icon {
+  display: inline-block;
+  fill: #0101E2;
+  height: 24px;
+  width: 24px;
+  margin-right: 8px;
+}
+
+.loader-title {
+  display: inline-block;
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #252D36;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.loader-gradient {
+  position: absolute;
+  top: calc(50% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  width: 276px;
+  height: 60px;
+  background: linear-gradient(90deg, #0101E2 0%, #4285F4 25%, #0101E2 40%, #2563EB 59%, #0101E2 75%, #4285F4 100%);
+  background-size: 400% 400%;
+  background-repeat: repeat;
+  filter: blur(8px);
+  animation: sparkle-loading-rainbow 3s linear infinite;
+}
+
+@keyframes sparkle-loading-rainbow {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* INNER GLOW LOADING with Conic Gradient - FULL PANEL */
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Background glow layer approach - DISABLED (was causing positioning issues)
+.panel-glow-background {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border: solid 3px;
+  filter: blur(4px);
+  border-radius: inherit;
+  border-image: 
+    conic-gradient(
+      from var(--glow-angle), 
+      transparent 0deg,
+      rgba(1, 1, 226, 0.5) 45deg,
+      rgba(1, 1, 226, 0.8) 90deg,
+      rgba(1, 1, 226, 0.5) 135deg,
+      transparent 180deg,
+      rgba(1, 1, 226, 0.5) 225deg,
+      rgba(1, 1, 226, 0.8) 270deg,
+      rgba(1, 1, 226, 0.5) 315deg,
+      transparent 360deg
+    ) 1;
+  animation: glow-rotate 4s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.search-panel {
+  position: relative;
+}
+
+.search-panel-content {
+  position: relative;
+  z-index: 10;
+}
+*/
+
+.glow-loading {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  z-index: 15;
+}
+
+.glow-text {
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #0101E2;
+  text-align: center;
+  animation: gentle-glimmer 2s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 16px 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 20;
+}
+
+@keyframes glow-rotate {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+@keyframes gentle-glimmer {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Add traveling glow to search panel when loading - COMMENTED OUT DUE TO POSITIONING ISSUES
+.search-panel {
+  position: relative;
+}
+
+.search-panel::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    90deg, 
+    transparent 0%, 
+    transparent 25%, 
+    rgba(1, 1, 226, 0.6) 50%, 
+    transparent 75%, 
+    transparent 100%
+  );
+  background-size: 200% 200%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  animation: none;
+  filter: blur(1px);
+}
+
+.search-panel.loading::before {
+  opacity: 1;
+  animation: traveling-glow 3s linear infinite;
+}
+
+@keyframes traveling-glow {
+  0% {
+    background: linear-gradient(
+      0deg, 
+      rgba(1, 1, 226, 0.4) 0%, 
+      transparent 50%, 
+      transparent 100%
+    );
+  }
+  25% {
+    background: linear-gradient(
+      90deg, 
+      rgba(1, 1, 226, 0.4) 0%, 
+      transparent 50%, 
+      transparent 100%
+    );
+  }
+  50% {
+    background: linear-gradient(
+      180deg, 
+      rgba(1, 1, 226, 0.4) 0%, 
+      transparent 50%, 
+      transparent 100%
+    );
+  }
+  75% {
+    background: linear-gradient(
+      270deg, 
+      rgba(1, 1, 226, 0.4) 0%, 
+      transparent 50%, 
+      transparent 100%
+    );
+  }
+  100% {
+    background: linear-gradient(
+      360deg, 
+      rgba(1, 1, 226, 0.4) 0%, 
+      transparent 50%, 
+      transparent 100%
+    );
+  }
+}
+*/
+
+.ai-loading {
+  padding: 0.25rem 0;
+}
+
+.loading-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.step-number-container {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+.step-number {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.step-number.pending {
+  background: transparent;
+  color: #BDBDBD;
+  border: 1px solid #BDBDBD;
+}
+
+.step-number.active {
+  background: transparent;
+  color: #BDBDBD;
+  border: 1px solid #BDBDBD;
+}
+
+.step-number.completed {
+  background: #888888;
+  color: white;
+  border: 1px solid #888888;
+}
+
+.step-progress-ring {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid #888888;
+  border-right: 2px solid rgba(136, 136, 136, 0.3);
+  opacity: 0;
+  animation: spin 0.8s linear infinite;
+  z-index: 1;
+}
+
+.step-progress-ring.active {
+  opacity: 1;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.step-content {
+  flex: 1;
+  position: relative;
+}
+
+.step-text {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #BDBDBD;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.step-text.active {
+  color: #BDBDBD;
+  animation: textGlow 1.2s ease-in-out infinite;
+}
+
+.step-text.completed {
+  color: #888888;
+}
+
+@keyframes textGlow {
+  0% {
+    color: #BDBDBD;
+    text-shadow: none;
+  }
+  25% {
+    color: #DDDDDD;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    color: #FFFFFF;
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+  }
+  75% {
+    color: #DDDDDD;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    color: #BDBDBD;
+    text-shadow: none;
+  }
+}
+
+.suggestions-section,
+.results-section {
+  margin-bottom: 2rem;
+}
+
+.suggestions-section {
+  margin-top: 20px;
+}
+
+.suggestions-section h3 {
+  font-family: 'NYTFranklin';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  display: flex;
+  align-items: center;
+  color: #666666;
+  letter-spacing: 0px;
+  margin: 0 0 1rem 0;
+}
+
+.results-section h3 {
+  font-family: 'NYTFranklin';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  display: flex;
+  align-items: center;
+  color: #666666;
+  letter-spacing: 0px;
+  margin: 0 0 1rem 0;
+}
+
+.results-section {
+  margin-top: 20px;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #f8f9fa;
+  color: #495057;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.suggestion-item:hover {
+  background: rgba(100, 116, 139, 0.1);
+  color: #475569;
+  transform: translateX(4px);
+}
+
+.suggestion-item svg {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.suggestion-item:hover svg {
+  opacity: 1;
+}
+
+.suggestion-item strong {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.result-item {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.result-item:hover {
+  border-color: rgba(100, 116, 139, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0;
+}
+
+.result-header h4 {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.result-type {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Color palette based on brand yellow #FFE435 */
+.result-type.first-party-audience {
+  background: rgba(255, 228, 53, 0.15);
+  color: #B8A000;
+}
+
+.result-type.device {
+  background: rgba(65, 105, 225, 0.15);
+  color: #2C5AA0;
+}
+
+.result-type.audio {
+  background: rgba(255, 107, 53, 0.15);
+  color: #CC4125;
+}
+
+.result-type.games {
+  background: rgba(255, 107, 53, 0.15);
+  color: #CC4125;
+}
+
+.result-type.newsletter {
+  background: rgba(107, 70, 193, 0.15);
+  color: #553C9A;
+}
+
+.result-type.topic {
+  background: rgba(107, 70, 193, 0.15);
+  color: #553C9A;
+}
+
+.result-type.cooking {
+  background: rgba(22, 163, 74, 0.15);
+  color: #166E3C;
+}
+
+.result-type.the-athletic {
+  background: rgba(22, 163, 74, 0.15);
+  color: #166E3C;
+}
+
+.result-type.keyword {
+  background: rgba(100, 116, 139, 0.15);
+  color: #475569;
+}
+
+.result-type.section {
+  background: rgba(100, 116, 139, 0.15);
+  color: #475569;
+}
+
+.result-type.subsection {
+  background: rgba(100, 116, 139, 0.15);
+  color: #475569;
+}
+
+.result-type.motivation-targeting {
+  background: rgba(220, 38, 38, 0.15);
+  color: #B91C1C;
+}
+
+.result-type.perspective-targeting {
+  background: rgba(236, 72, 153, 0.15);
+  color: #BE185D;
+}
+
+.result-type.local-time-of-day {
+  background: rgba(245, 158, 11, 0.15);
+  color: #D97706;
+}
+
+.result-type.region {
+  background: rgba(65, 105, 225, 0.15);
+  color: #2C5AA0;
+}
+
+.result-type.sales-category-name {
+  background: rgba(168, 85, 247, 0.15);
+  color: #7C3AED;
+}
+
+.result-description {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.no-results p {
+  line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-panel {
+    width: 100%;
+  }
+  
+  .search-panel-content {
+    padding: 1.5rem;
+  }
+}

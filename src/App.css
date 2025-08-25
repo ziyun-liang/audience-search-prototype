@@ -1,0 +1,171 @@
+.App {
+  min-height: 100vh;
+  position: relative;
+  background: #f8f9fa;
+}
+
+/* Figma Design Recreation */
+.figma-background {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+}
+
+.figma-header {
+  padding: 20px 24px;
+  background: white;
+  position: relative;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kaleidoscope-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.powered-by {
+  font-size: 14px;
+  color: #6b7280;
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.control-panel {
+  padding: 24px;
+  background: white;
+}
+
+.dropdown-section {
+  display: flex;
+  gap: 24px;
+  max-width: 800px;
+}
+
+.dropdown-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dropdown-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 160px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.dropdown:hover {
+  border-color: #9ca3af;
+}
+
+.dropdown span {
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.central-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  background: white;
+}
+
+.chart-icon {
+  margin-bottom: 24px;
+  opacity: 0.6;
+}
+
+.central-message {
+  font-size: 16px;
+  color: #9ca3af;
+  text-align: center;
+  margin: 0;
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Search Trigger Overlay */
+.search-trigger-overlay {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  min-width: 320px;
+  height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+  padding-left: 16px;
+  padding-right: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.search-trigger-overlay:hover {
+  border-color: #000000;
+}
+
+.search-trigger-overlay:hover .search-icon {
+  color: #000000;
+}
+
+.search-trigger-overlay .search-icon {
+  color: #000000;
+  flex-shrink: 0;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%) translateY(-1px);
+  transition: color 0.3s ease;
+}
+
+.search-trigger-overlay .search-placeholder {
+  color: #9ca3af;
+  font-size: 14px;
+  font-family: 'NYTFranklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 24px;
+  width: calc(100% - 56px);
+}
+
+/* Search Panel Backdrop */
+.search-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+}
