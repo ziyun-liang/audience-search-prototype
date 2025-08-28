@@ -292,6 +292,25 @@ const SearchPanel = ({ onClose }) => {
     performSearch(suggestion.name);
   };
 
+  // Helper function to count words in query
+  const getWordCount = (text) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  // Clear search input
+  const handleClear = () => {
+    setQuery('');
+    setSearchResults([]);
+    setShowSuggestions(false);
+    setHasSearched(false);
+    setIsRFPMode(false);
+    setIsLoading(false);
+    setLoadingStage(0);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
   return (
     <motion.div
       className="search-panel"
@@ -331,6 +350,16 @@ const SearchPanel = ({ onClose }) => {
               onKeyDown={handleKeyDown}
               rows={1}
             />
+            {getWordCount(query) > 2 && (
+              <button 
+                className="clear-button"
+                onClick={handleClear}
+                aria-label="Clear search"
+                title="Clear"
+              >
+                Clear
+              </button>
+            )}
             {query.length > 0 && (
               <button 
                 className="search-button"

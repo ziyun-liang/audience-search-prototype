@@ -144,6 +144,39 @@
 
 
 
+.clear-button {
+  position: absolute;
+  right: 4rem;
+  bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 17px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  
+  /* Typography */
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  color: #666666;
+}
+
+.clear-button:hover {
+  color: #333333;
+  opacity: 0.8;
+}
+
+.clear-button:active {
+  transform: translateY(1px);
+}
+
 .search-button {
   position: absolute;
   right: 1rem;
