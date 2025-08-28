@@ -294,7 +294,9 @@ const SearchPanel = ({ onClose }) => {
 
   // Helper function to count words in query
   const getWordCount = (text) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    console.log('Word count debug:', { text, words, count: words.length }); // Debug log
+    return words.length;
   };
 
   // Clear search input
@@ -350,6 +352,12 @@ const SearchPanel = ({ onClose }) => {
               onKeyDown={handleKeyDown}
               rows={1}
             />
+            {/* Debug: Show word count and button logic */}
+            {query.length > 0 && (
+              <div style={{fontSize: '10px', color: 'red'}}>
+                Words: {getWordCount(query)} | Show button: {getWordCount(query) > 2 ? 'YES' : 'NO'}
+              </div>
+            )}
             {getWordCount(query) > 2 && (
               <button 
                 className="clear-button"
