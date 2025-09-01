@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown } from 'lucide-react';
 import SearchPanel from './SearchPanel';
+import LoadingPlayground from './LoadingPlayground';
 import './App.css';
 
 function App() {
@@ -9,6 +10,15 @@ function App() {
 
   const openSearch = () => setIsSearchOpen(true);
   const closeSearch = () => setIsSearchOpen(false);
+
+  // Check if we should show the loading playground
+  const urlParams = new URLSearchParams(window.location.search);
+  const showPlayground = urlParams.get('playground') === 'loading';
+
+  // If playground mode, show the LoadingPlayground component
+  if (showPlayground) {
+    return <LoadingPlayground />;
+  }
 
   return (
     <div className="App">

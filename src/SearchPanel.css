@@ -21,6 +21,9 @@
   flex-direction: column;
   padding: 2rem 2rem 1rem 2rem;
   overflow: hidden;
+  position: relative;
+
+
 }
 
 .search-header {
@@ -30,6 +33,7 @@
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   position: relative;
+
 }
 
 .search-header h2 {
@@ -58,6 +62,7 @@
   font-size: 24px;
   font-weight: 700;
   line-height: 1;
+
 }
 
 .close-button:hover {
@@ -67,6 +72,8 @@
 .search-input-container {
   margin-bottom: 0.25rem;
   transition: all 0.3s ease;
+  position: relative;
+
 }
 
 
@@ -106,7 +113,7 @@
   color: #212529;
   resize: none;
   outline: none;
-  transition: all 0.3s ease;
+  transition: height 0.2s ease;
   overflow-y: auto;
 }
 
@@ -142,12 +149,26 @@
   color: #9ca3af;
 }
 
+/* Invisible resize handle */
+.resize-handle {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  cursor: ns-resize;
+  background: transparent;
+  z-index: 10;
+}
 
+.resize-handle:hover {
+  cursor: ns-resize;
+}
 
 .clear-button {
   position: absolute;
   right: 4rem;
-  bottom: 0.75rem;
+  bottom: 1.35rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,6 +228,8 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+
 }
 
 /* Completely hidden scrollbar for search results - only shows during interaction */
@@ -612,6 +635,103 @@
   }
 }
 
+/* ===== MINIMAL CONTENT GLOW (SAFE APPROACH) ===== */
+
+/* .search-panel-content.glow-loading::before {
+  content: '';
+  position: absolute;
+  top: -2rem;
+  left: -2rem;
+  right: -2rem;
+  bottom: -1rem;
+  box-shadow: inset 0 0 40px rgba(1, 1, 226, 0.5);
+  pointer-events: none;
+  z-index: -1;
+} */
+
+/* ===== LOADING BLUE INNER GLOW ===== */
+
+.search-panel-content.loading-outline {
+  margin: -1px;
+  border: 1px solid rgba(1, 1, 226, 0.3);
+  box-shadow: 
+    inset 0 0 20px rgba(1, 1, 226, 0.4),
+    inset 0 0 40px rgba(1, 1, 226, 0.2),
+    inset 0 0 60px rgba(1, 1, 226, 0.1);
+}
+
+.glow-loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+}
+
+.shimmer-text {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #0101E2;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sparkles-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.125rem;
+}
+
+.search-text {
+  display: inline-block;
+  font-family: 'NYTFranklin';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #0101E2;
+}
+
+.shimmer-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 30%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 0.8) 70%,
+    transparent 100%
+  );
+  animation: shimmer-pass 1.5s linear infinite;
+  mix-blend-mode: overlay;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes shimmer-pass {
+  0% {
+    left: -120%;
+  }
+  70% {
+    left: 120%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+
 .suggestions-section,
 .results-section {
   margin-bottom: 2rem;
@@ -843,6 +963,244 @@
 
 .no-results p {
   line-height: 1.6;
+}
+
+/* ===== FEEDBACK SECTION ===== */
+
+.feedback-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.feedback-container {
+  text-align: center;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.feedback-question {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #212529;
+  margin-bottom: 1rem;
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.feedback-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-btn:hover {
+  border: 1px solid #333333;
+  color: #333333;
+}
+
+.feedback-btn.selected {
+  border: 1px solid #333333;
+  background: #333333;
+  color: white;
+}
+
+.feedback-btn svg {
+  transition: all 0.2s ease;
+}
+
+.feedback-thanks {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  color: #28a745;
+  font-weight: 500;
+  margin: 0;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== DETAILED FEEDBACK MODAL ===== */
+
+.feedback-modal-overlay {
+  position: fixed;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.feedback-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.feedback-modal-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.feedback-modal-header h3 {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 0.5rem 0;
+}
+
+.feedback-modal-header p {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0;
+}
+
+.feedback-modal-content {
+  padding: 1.5rem;
+}
+
+.feedback-reasons {
+  margin-bottom: 1.5rem;
+}
+
+.feedback-reasons h4 {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0 0 1rem 0;
+}
+
+.reason-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.reason-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 20px;
+  background: white;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reason-btn:hover {
+  border-color: #333333;
+  color: #333333;
+}
+
+.reason-btn.selected {
+  border-color: #333333;
+  background: #333333;
+  color: white;
+}
+
+.feedback-comments h4 {
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0 0 0.75rem 0;
+}
+
+.feedback-comments textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  color: #212529;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.feedback-comments textarea:focus {
+  border-color: #333333;
+}
+
+.feedback-comments textarea::placeholder {
+  color: #9ca3af;
+}
+
+.feedback-modal-actions {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background: white;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: #333333;
+  color: #333333;
+}
+
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #333333;
+  border-radius: 6px;
+  background: #333333;
+  font-family: 'NYTFranklin', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #222222;
+  border-color: #222222;
 }
 
 /* Responsive adjustments */

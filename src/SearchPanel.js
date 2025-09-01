@@ -11,7 +11,10 @@ const SearchPanel = ({ onClose }) => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isRFPMode, setIsRFPMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStage, setLoadingStage] = useState(0);
+  const [searchBoxHeight, setSearchBoxHeight] = useState(130); // Default height
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartY, setResizeStartY] = useState(0);
+  const [resizeStartHeight, setResizeStartHeight] = useState(130);
   const textareaRef = useRef(null);
 
   // Mock data for audience segments
@@ -191,6 +194,7 @@ const SearchPanel = ({ onClose }) => {
 
     setHasSearched(true);
     setShowSuggestions(false);
+    resetFeedback(); // Reset all feedback for new search
 
     // Check if this is RFP mode (100+ characters)
     const isRFP = searchQuery.length >= 100;
@@ -199,15 +203,8 @@ const SearchPanel = ({ onClose }) => {
     if (isRFP) {
       // RFP Mode: Show loading sequence and filter to 1P Audience only
       setIsLoading(true);
-      setLoadingStage(0);
       
-      // Stage 1: Analyzing your RFP...
-      setTimeout(() => setLoadingStage(1), 500);
-      
-      // Stage 2: Matching audience segments...
-      setTimeout(() => setLoadingStage(2), 1500);
-      
-      // Stage 3: Found X relevant audiences & show results
+      // Glow loading for 3 seconds to match animation
       setTimeout(() => {
         const audienceSegments = get1PAudienceSegments();
         const scoredResults = audienceSegments
@@ -219,12 +216,9 @@ const SearchPanel = ({ onClose }) => {
           .sort((a, b) => b.relevanceScore - a.relevanceScore)
           .slice(0, 8); // Cap at 8 results
         
-        setLoadingStage(3);
-        setTimeout(() => {
-          setSearchResults(scoredResults.map(s => ({ type: 'segment', ...s })));
-          setIsLoading(false);
-        }, 500);
-      }, 2500);
+        setSearchResults(scoredResults.map(s => ({ type: 'segment', ...s })));
+        setIsLoading(false);
+      }, 3000);
     } else {
       // Normal Mode: Regular search across all segments
       const semanticResults = mockSegments.filter(segment => 
@@ -294,9 +288,7 @@ const SearchPanel = ({ onClose }) => {
 
   // Helper function to count words in query
   const getWordCount = (text) => {
-    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-    console.log('Word count debug:', { text, words, count: words.length }); // Debug log
-    return words.length;
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   };
 
   // Clear search input
@@ -307,25 +299,116 @@ const SearchPanel = ({ onClose }) => {
     setHasSearched(false);
     setIsRFPMode(false);
     setIsLoading(false);
-    setLoadingStage(0);
+    resetFeedback(); // Reset all feedback when clearing
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
   };
 
+  // Resize handlers
+  const handleResizeStart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeStartY(e.clientY);
+    setResizeStartHeight(searchBoxHeight);
+    
+    const handleResizeMove = (e) => {
+      const deltaY = e.clientY - resizeStartY; // 1:1 movement with mouse
+      const newHeight = Math.max(80, Math.min(resizeStartHeight + deltaY, 400)); // Reasonable limits
+      setSearchBoxHeight(newHeight);
+    };
+
+    const handleResizeEnd = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleResizeMove);
+      document.removeEventListener('mouseup', handleResizeEnd);
+    };
+    
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeEnd);
+  };
+
+  // Track if resize handle should be shown
+  const [showResizeHandle, setShowResizeHandle] = useState(false);
+  // Track feedback state
+  const [feedback, setFeedback] = useState(null); // 'thumbs-up', 'thumbs-down', or null
+  const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
+  const [detailedReasons, setDetailedReasons] = useState([]);
+  const [detailedComments, setDetailedComments] = useState('');
+
+  // Check if content overflows current height
+  const hasOverflowingContent = () => {
+    if (textareaRef.current && query.trim().length > 0) {
+      return textareaRef.current.scrollHeight > textareaRef.current.clientHeight + 5; // 5px buffer
+    }
+    return false;
+  };
+
+  // Update resize handle visibility when content changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowResizeHandle(hasOverflowingContent());
+    }, 100); // Small delay to ensure textarea has updated
+    
+    return () => clearTimeout(timer);
+  }, [query, searchBoxHeight]);
+
+  // Handle initial feedback submission
+  const handleFeedback = (type) => {
+    setFeedback(type);
+    console.log(`Initial feedback submitted: ${type} for semantic search`);
+    // Show detailed feedback popup for more insights
+    setShowDetailedFeedback(true);
+  };
+
+  // Handle detailed feedback reasons
+  const toggleDetailedReason = (reason) => {
+    setDetailedReasons(prev => 
+      prev.includes(reason) 
+        ? prev.filter(r => r !== reason)
+        : [...prev, reason]
+    );
+  };
+
+  // Handle detailed feedback submission
+  const handleDetailedFeedbackSubmit = () => {
+    console.log(`Detailed feedback:`, {
+      initialRating: feedback,
+      reasons: detailedReasons,
+      comments: detailedComments
+    });
+    // TODO: Send detailed feedback to analytics/backend
+    setShowDetailedFeedback(false);
+  };
+
+  // Handle skipping detailed feedback
+  const handleSkipDetailedFeedback = () => {
+    console.log(`User skipped detailed feedback for: ${feedback}`);
+    setShowDetailedFeedback(false);
+  };
+
+  // Reset all feedback state
+  const resetFeedback = () => {
+    setFeedback(null);
+    setShowDetailedFeedback(false);
+    setDetailedReasons([]);
+    setDetailedComments('');
+  };
+
   return (
-    <motion.div
+        <motion.div
       className="search-panel"
       initial={{ x: '100%' }}
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
-      transition={{ 
+      transition={{
         type: 'tween',
         duration: 0.3,
         ease: 'easeInOut'
       }}
     >
-      <div className="search-panel-content">
+              <div className={`search-panel-content ${isLoading ? 'loading-outline' : ''}`}>
         {/* Header */}
         <div className="search-header">
           <h2>Search</h2>
@@ -351,14 +434,13 @@ const SearchPanel = ({ onClose }) => {
               onPaste={handlePaste}
               onKeyDown={handleKeyDown}
               rows={1}
+              style={{ 
+                height: `${searchBoxHeight}px`, 
+                maxHeight: 'none',
+                transition: isResizing ? 'none' : 'height 0.2s ease'
+              }}
             />
-            {/* Debug: Show word count and button logic */}
-            {query.length > 0 && (
-              <div style={{fontSize: '10px', color: 'red'}}>
-                Words: {getWordCount(query)} | Show button: {getWordCount(query) > 2 ? 'YES' : 'NO'}
-              </div>
-            )}
-            {getWordCount(query) > 2 && (
+            {query.trim().length >= 2 && (
               <button 
                 className="clear-button"
                 onClick={handleClear}
@@ -382,6 +464,13 @@ const SearchPanel = ({ onClose }) => {
                 </svg>
               </button>
             )}
+            {/* Invisible resize area - only when content overflows */}
+            {showResizeHandle && (
+              <div 
+                className="resize-handle"
+                onMouseDown={handleResizeStart}
+              />
+            )}
           </div>
         </div>
 
@@ -389,78 +478,25 @@ const SearchPanel = ({ onClose }) => {
         <div className="search-results">
           {isLoading && (
             <div className="loading-section">
-              {/* 1,2,3 STEPS LOADING (restored for stability) */}
-              <motion.div 
-                className="ai-loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="loading-steps">
-                  <div className="loading-step">
-                    <div className="step-number-container">
-                      <div className={`step-number ${
-                        loadingStage === 0 ? 'pending' : 
-                        loadingStage === 1 ? 'active' : 
-                        'completed'
-                      }`}>
-                        1
-                      </div>
-                      <div className={`step-progress-ring ${loadingStage === 1 ? 'active' : ''}`}></div>
-                    </div>
-                    <div className="step-content">
-                      <div className={`step-text ${
-                        loadingStage === 1 ? 'active' : 
-                        loadingStage > 1 ? 'completed' : ''
-                      }`}>
-                        Analyze the input
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="loading-step">
-                    <div className="step-number-container">
-                      <div className={`step-number ${
-                        loadingStage < 2 ? 'pending' : 
-                        loadingStage === 2 ? 'active' : 
-                        'completed'
-                      }`}>
-                        2
-                      </div>
-                      <div className={`step-progress-ring ${loadingStage === 2 ? 'active' : ''}`}></div>
-                    </div>
-                    <div className="step-content">
-                      <div className={`step-text ${
-                        loadingStage === 2 ? 'active' : 
-                        loadingStage > 2 ? 'completed' : ''
-                      }`}>
-                        Match 1P Audience Segments
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="loading-step">
-                    <div className="step-number-container">
-                      <div className={`step-number ${
-                        loadingStage < 3 ? 'pending' : 
-                        loadingStage === 3 ? 'active' : 
-                        'completed'
-                      }`}>
-                        3
-                      </div>
-                      <div className={`step-progress-ring ${loadingStage === 3 ? 'active' : ''}`}></div>
-                    </div>
-                    <div className="step-content">
-                      <div className={`step-text ${
-                        loadingStage === 3 ? 'active' : 
-                        loadingStage > 3 ? 'completed' : ''
-                      }`}>
-                        Show results
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              {/* SPARKLES + SHIMMER TEXT ONLY */}
+              <div className="glow-loading-container">
+                <motion.div 
+                  className="shimmer-text"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <svg className="sparkles-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path 
+                      d="M17 3.75a1 1 0 0 1 1 1c0 .257.13.577.402.848.271.271.59.402.848.402a1 1 0 1 1 0 2c-.257 0-.577.13-.848.402-.271.271-.402.59-.402.848a1 1 0 1 1-2 0c0-.257-.13-.577-.402-.848-.271-.271-.59-.402-.848-.402a1 1 0 1 1 0-2c.257 0 .577-.13.848-.402.271-.271.402-.59.402-.848a1 1 0 0 1 1-1Zm0 10a1 1 0 0 1 1 1c0 .257.13.577.402.848.271.271.59.402.848.402a1 1 0 1 1 0 2c-.257 0-.577.13-.848.402-.271.271-.402.59-.402.848a1 1 0 1 1-2 0c0-.257-.13-.577-.402-.848-.271-.271-.59-.402-.848-.402a1 1 0 1 1 0-2c.257 0 .577-.13.848-.402.271-.271.402-.59.402-.848a1 1 0 0 1 1-1Zm-8-7a1 1 0 0 1 1 1c0 .767.376 1.587 1.02 2.23.643.644 1.463 1.02 2.23 1.02a1 1 0 1 1 0 2c-.767 0-1.587.376-2.23 1.02-.644.643-1.02 1.463-1.02 2.23a1 1 0 1 1-2 0c0-.767-.376-1.587-1.02-2.23C6.337 13.376 5.517 13 4.75 13a1 1 0 1 1 0-2c.767 0 1.587-.376 2.23-1.02C7.624 9.337 8 8.517 8 7.75a1 1 0 0 1 1-1Zm0 3.934A5.859 5.859 0 0 1 7.684 12 5.86 5.86 0 0 1 9 13.316 5.867 5.867 0 0 1 10.316 12 5.871 5.871 0 0 1 9 10.684Z" 
+                      fill="#0101E2"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="search-text">Searching for 1P Audiences</span>
+                </motion.div>
+              </div>
 
               {/* GLOW TEXT LOADING (commented out - positioning issues)
               <motion.div 
@@ -539,6 +575,139 @@ const SearchPanel = ({ onClose }) => {
                     </div>
                   </motion.div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Feedback for semantic search results */}
+          {!isLoading && isRFPMode && searchResults.length > 0 && !showSuggestions && (
+            <div className="feedback-section">
+              <div className="feedback-container">
+                <p className="feedback-question">How well do these audiences match your search?</p>
+                <div className="feedback-buttons">
+                  <button 
+                    className={`feedback-btn ${feedback === 'thumbs-up' ? 'selected' : ''}`}
+                    onClick={() => handleFeedback('thumbs-up')}
+                    aria-label="Good"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clipPath="url(#thumbs-up-clip)">
+                        <path d="M9.5 21.5H18.5C19.33 21.5 20.04 21 20.34 20.28L23.36 13.23C23.45 13 23.5 12.76 23.5 12.5V10.5C23.5 9.4 22.6 8.5 21.5 8.5H15.19L16.14 3.93L16.17 3.61C16.17 3.2 16 2.82 15.73 2.55L14.67 1.5L8.08 8.09C7.72 8.45 7.5 8.95 7.5 9.5V19.5C7.5 20.6 8.4 21.5 9.5 21.5ZM9.5 9.5L13.84 5.16L12.5 10.5H21.5V12.5L18.5 19.5H9.5V9.5ZM1.5 9.5H5.5V21.5H1.5V9.5Z" fill="currentColor"/>
+                      </g>
+                      <defs>
+                        <clipPath id="thumbs-up-clip">
+                          <rect width="24" height="24" fill="white" transform="translate(0.5 0.5)"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    Good
+                  </button>
+                  <button 
+                    className={`feedback-btn ${feedback === 'thumbs-down' ? 'selected' : ''}`}
+                    onClick={() => handleFeedback('thumbs-down')}
+                    aria-label="Poor"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clipPath="url(#thumbs-down-clip)">
+                        <path d="M15 3.5H6C5.17 3.5 4.46 4 4.16 4.72L1.14 11.77C1.05 12 1 12.24 1 12.5V14.5C1 15.6 1.9 16.5 3 16.5H9.31L8.36 21.07L8.33 21.39C8.33 21.8 8.5 22.18 8.77 22.45L9.83 23.5L16.42 16.91C16.78 16.55 17 16.05 17 15.5V5.5C17 4.4 16.1 3.5 15 3.5ZM15 15.5L10.66 19.84L12 14.5H3V12.5L6 5.5H15V15.5ZM19 3.5H23V15.5H19V3.5Z" fill="currentColor"/>
+                      </g>
+                      <defs>
+                        <clipPath id="thumbs-down-clip">
+                          <rect width="24" height="24" fill="white" transform="translate(0 0.5)"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    Poor
+                  </button>
+                </div>
+                {feedback && !showDetailedFeedback && (
+                  <p className="feedback-thanks">Thanks for your feedback!</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Detailed Feedback Modal */}
+          {showDetailedFeedback && (
+            <div className="feedback-modal-overlay">
+              <div className="feedback-modal">
+                <div className="feedback-modal-header">
+                  <h3>Help us improve</h3>
+                  <p>What specifically made this a {feedback === 'thumbs-up' ? 'good' : 'poor'} match?</p>
+                </div>
+
+                <div className="feedback-modal-content">
+                  {feedback === 'thumbs-down' && (
+                    <div className="feedback-reasons">
+                      <h4>Common issues:</h4>
+                      <div className="reason-options">
+                        {[
+                          'Audiences too broad',
+                          'Missing key demographics',
+                          'Wrong interests/behaviors',
+                          'Irrelevant segments',
+                          'Missing niche audiences'
+                        ].map(reason => (
+                          <button
+                            key={reason}
+                            className={`reason-btn ${detailedReasons.includes(reason) ? 'selected' : ''}`}
+                            onClick={() => toggleDetailedReason(reason)}
+                          >
+                            {reason}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {feedback === 'thumbs-up' && (
+                    <div className="feedback-reasons">
+                      <h4>What worked well:</h4>
+                      <div className="reason-options">
+                        {[
+                          'Accurate targeting',
+                          'Relevant demographics',
+                          'Good audience variety',
+                          'Helpful suggestions',
+                          'Complete coverage'
+                        ].map(reason => (
+                          <button
+                            key={reason}
+                            className={`reason-btn ${detailedReasons.includes(reason) ? 'selected' : ''}`}
+                            onClick={() => toggleDetailedReason(reason)}
+                          >
+                            {reason}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="feedback-comments">
+                    <h4>Additional comments (optional):</h4>
+                    <textarea
+                      value={detailedComments}
+                      onChange={(e) => setDetailedComments(e.target.value)}
+                      placeholder="Tell us more about your experience..."
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div className="feedback-modal-actions">
+                  <button 
+                    className="btn-secondary" 
+                    onClick={handleSkipDetailedFeedback}
+                  >
+                    Skip
+                  </button>
+                  <button 
+                    className="btn-primary" 
+                    onClick={handleDetailedFeedbackSubmit}
+                  >
+                    Submit feedback
+                  </button>
+                </div>
               </div>
             </div>
           )}
