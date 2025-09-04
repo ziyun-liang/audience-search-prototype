@@ -336,6 +336,9 @@ const SearchPanel = ({ onClose }) => {
   const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
   const [detailedReasons, setDetailedReasons] = useState([]);
   const [detailedComments, setDetailedComments] = useState('');
+  
+  // Track copy feedback
+  const [showCopySuccess, setShowCopySuccess] = useState(false);
 
   // Check if content overflows current height
   const hasOverflowingContent = () => {
@@ -394,6 +397,41 @@ const SearchPanel = ({ onClose }) => {
     setShowDetailedFeedback(false);
     setDetailedReasons([]);
     setDetailedComments('');
+  };
+
+  // Handle copying all results
+  const handleCopyAllResults = async () => {
+    try {
+      const formattedResults = searchResults.map(result => 
+        `• ${result.name} - Segment ID: 173595`
+      ).join('\n');
+      
+      await navigator.clipboard.writeText(formattedResults);
+      
+      // Show success feedback
+      setShowCopySuccess(true);
+      setTimeout(() => {
+        setShowCopySuccess(false);
+      }, 2000);
+      
+      console.log('Copied results:', formattedResults);
+    } catch (err) {
+      console.error('Failed to copy results:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = searchResults.map(result => 
+        `• ${result.name} - Segment ID: 173595`
+      ).join('\n');
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      setShowCopySuccess(true);
+      setTimeout(() => {
+        setShowCopySuccess(false);
+      }, 2000);
+    }
   };
 
   return (
@@ -557,7 +595,19 @@ const SearchPanel = ({ onClose }) => {
 
           {!isLoading && !showSuggestions && searchResults.length > 0 && (
             <div className="results-section">
-              <h3>Search Results ({searchResults.length})</h3>
+              <div className="results-header">
+                <h3>Search Results ({searchResults.length})</h3>
+                <button 
+                  className="copy-results-btn"
+                  onClick={handleCopyAllResults}
+                  aria-label="Copy all results"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.6668 0.666748H2.66683C1.9335 0.666748 1.3335 1.26675 1.3335 2.00008V11.3334H2.66683V2.00008H10.6668V0.666748ZM12.6668 3.33341H5.3335C4.60016 3.33341 4.00016 3.93341 4.00016 4.66675V14.0001C4.00016 14.7334 4.60016 15.3334 5.3335 15.3334H12.6668C13.4002 15.3334 14.0002 14.7334 14.0002 14.0001V4.66675C14.0002 3.93341 13.4002 3.33341 12.6668 3.33341ZM12.6668 14.0001H5.3335V4.66675H12.6668V14.0001Z" fill="#666666"/>
+                  </svg>
+                  Copy All Results
+                </button>
+              </div>
               <div className="results-list">
                 {searchResults.map((result, index) => (
                   <motion.div
@@ -569,6 +619,7 @@ const SearchPanel = ({ onClose }) => {
                   >
                     <div className="result-header">
                       <h4>{result.name}</h4>
+                      <span className="segment-id">Segment ID: 173595</span>
                       <span className={`result-type ${getCategoryClass(result.type)}`}>
                         {result.type}
                       </span>
@@ -718,6 +769,22 @@ const SearchPanel = ({ onClose }) => {
             </div>
           )}
         </div>
+
+        {/* Copy Success Toast */}
+        {showCopySuccess && (
+          <motion.div
+            className="copy-success-toast"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Results copied to clipboard
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
